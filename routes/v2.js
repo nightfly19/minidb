@@ -8,19 +8,6 @@ var catalogPath = function(req, certname){
     return req.app.get('catalog_dir')+"/"+certname;
 };
 
-exports.facts = function(req, res){
-    var filename = factPath(req, req.params.certname);
-    fs.exists(filename,function(exists){
-	if (exists){
-	    fs.readFile(filename, function(err, data){
-		res.json(JSON.parse(data));});
-	}
-	else{
-	    res.json({});
-	}});
-    res.send('{}');
-};
-
 var commands = {
     "replace facts": function(req, res, message){
 	var inner_payload = JSON.parse(message.payload);
@@ -36,6 +23,19 @@ var commands = {
 		     function(err){res.json({uuid: 0});});
     }};
 
+exports.facts = function(req, res){
+    var filename = factPath(req, req.params.certname);
+    fs.exists(filename,function(exists){
+	if (exists){
+	    fs.readFile(filename, function(err, data){
+		res.json(JSON.parse(data));});
+	}
+	else{
+	    res.json({});
+	}});
+    res.send('{}');
+};
+
 exports.commands = function(req, res){
     var message = JSON.parse(req.body.payload);
     var command = message.command;
@@ -47,4 +47,9 @@ exports.commands = function(req, res){
 	res.send("no")
     }
 
+};
+
+exports.resources = function(req, res){
+    console.log(req.query.query);
+    res.json([]);
 };

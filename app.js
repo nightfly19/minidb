@@ -42,6 +42,7 @@ app.get ('/', routes.index);
 app.get ('/:top_level', user.list);
 app.post('/v2/commands', v2.commands);
 app.get ('/v2/nodes/:certname/facts', v2.facts);
+app.get ('/v2/resources', v2.resources);
 
 https.createServer(options, app).listen(app.get('port'), function(){
     console.log("Express server listening on port " + app.get('port'));
