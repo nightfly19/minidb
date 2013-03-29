@@ -93,7 +93,6 @@ var query_builder = function(query){
     case 'not':
 	var temp_fn = query_builder(queryc[0]);
 	return function(resource, certname){
-	    console.log("NOT");
 	    return !temp_fn(resource, certname);}
 	break;
     default:
@@ -118,13 +117,8 @@ exports.resources = function (req, res){
 		var resource = resources[i];
 		if(filter_fn(resource, certname)){
 		    found_resources.push(resource);
-		    console.log("Yes!");
-		    console.log(certname);
-		    console.log(resource);
 		}
 	    }
-	    console.log(certname);
-	    //console.log(resources);
 	}
 	res.json(found_resources);
     });
