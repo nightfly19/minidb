@@ -54,9 +54,7 @@ exports.commands = function(req, res){
 var query_builder = function(query){
     var queryc = query.slice(0);
     var first = queryc[0];
-    console.log(queryc);
     queryc.shift();
-    console.log("Shifted");
     switch (first){
     case 'and':
 	if(queryc.length > 1){
@@ -64,6 +62,7 @@ var query_builder = function(query){
 	    queryc[0] = 'and';
 	    var temp_fn_b = query_builder(queryc);
 	    return function(resource, certname){
+		//console.log("AND");
 		return temp_fn_a(resource, certname) && temp_fn_b(resource, certname);};
 	}
 	else{
@@ -79,7 +78,7 @@ var query_builder = function(query){
 	    break;
 	case 'tag':
 	    return function(resource, certname){
-		return (resource.tag.indexOf(value) != -1) ? true : false;};
+		return (resource.tags.indexOf(value) != -1) ? true : false;};
 	    break;
 	default:
 	    if (Array.isArray(field)){
@@ -92,43 +91,42 @@ var query_builder = function(query){
 	}
 	break;
     case 'not':
-	var temp_fn = query_builder(queryc);
-	return function(resource, certname){ return !temp_fn(resource, certname);}
+	var temp_fn = query_builder(queryc[0]);
+	return function(resource, certname){
+	    console.log("NOT");
+	    return !temp_fn(resource, certname);}
 	break;
     default:
 	console.log("Fail");
+	console.log(first);
+	console.log(query);
 	return queryc;
     }
 };
 
-var search_resources = function (req, query){
+exports.resources = function (req, res){
+    var query = JSON.parse(req.query.query);
     var catalog_dir = req.app.get('catalog_dir');
-    var resources = [];
+    var found_resources = [];
+    var filter_fn = query_builder(query);
     fs.readdir(catalog_dir,function(err, files){
 	for(file in files){
 	    var certname = files[file];
 	    var catalog_path = catalog_dir+"/"+certname;
+	    var resources = JSON.parse(fs.readFileSync(catalog_path)).resources;
+	    for(i in resources){
+		var resource = resources[i];
+		if(filter_fn(resource, certname)){
+		    found_resources.push(resource);
+		    console.log("Yes!");
+		    console.log(certname);
+		    console.log(resource);
+		}
+	    }
 	    console.log(certname);
+	    //console.log(resources);
 	}
+	res.json(found_resources);
     });
 };
 
-exports.resources = function(req, res){
-    var query = JSON.parse(req.query.query);
-    console.log(query_builder(query));
-    //search_resources(req, query);
-    console.log(query);
-    res.json([
-	{"certname": "pinkiepi.sagenite.net",
-	 "resource": "pugsforlyfe",
-	 "type": "File",
-	 "title": "/root/cat",
-	 "exported": true,
-	 tags: ["animal", "cow"],
-	 sourcefile: "/etc/meow",
-	 sourceline: 10,
-	 parameters: {content: "mew meow merow\n",
-		      ensure: "present",
-		      tag: ["animal", "cow"]}
-	}]);
-};
