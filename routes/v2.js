@@ -4,6 +4,10 @@ var factPath = function(req, certname){
     return req.app.get('fact_dir')+"/"+certname;
 };
 
+var catalogPath = function(req, certname){
+    return req.app.get('catalog_dir')+"/"+certname;
+};
+
 exports.facts = function(req, res){
     var filename = factPath(req, req.params.certname);
     fs.exists(filename,function(exists){
@@ -23,6 +27,12 @@ var commands = {
 	var name = inner_payload.name;
 	var fact_filename = factPath(req,name);
 	fs.writeFile(fact_filename, JSON.stringify(inner_payload),
+		     function(err){res.json({uuid: 0});})},
+    "replace catalog": function(req, res, message){
+	var inner_payload = message.payload;
+	var name = inner_payload.data.name;
+	var catalog_filename = catalogPath(req,name);
+	fs.writeFile(catalog_filename, JSON.stringify(inner_payload.data),
 		     function(err){res.json({uuid: 0});});
     }};
 

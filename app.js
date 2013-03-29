@@ -25,6 +25,7 @@ app.configure(function(){
     app.set('view engine', 'jade');
     app.set('data_dir', './data');
     app.set('fact_dir', app.get('data_dir')+'/facts');
+    app.set('catalog_dir', app.get('data_dir')+'/catalogs');
     app.use(express.favicon());
     app.use(express.logger('dev'));
     app.use(express.bodyParser());
