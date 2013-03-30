@@ -32,6 +32,7 @@ exports.facts = function(req, res){
     fs.exists(filename,function(exists){
         if (exists){
             fs.readFile(filename, function(err, data){
+                console.log(data);
                 res.json(JSON.parse(data));});
         }
         else{

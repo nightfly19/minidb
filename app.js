@@ -4,10 +4,7 @@
  */
 
 var express = require('express')
-, routes = require('./routes')
-, user = require('./routes/user')
 , v2 = require('./routes/v2')
-, http = require('http')
 , https = require('https')
 , path = require('path')
 , fs = require('fs');
@@ -38,8 +35,6 @@ app.configure('development', function(){
     app.use(express.errorHandler());
 });
 
-app.get ('/', routes.index);
-app.get ('/:top_level', user.list);
 app.post('/v2/commands', v2.commands);
 app.get ('/v2/nodes/:certname/facts', v2.facts);
 app.get ('/v2/resources', v2.resources);
