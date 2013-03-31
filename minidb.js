@@ -9,7 +9,8 @@ var express = require('express')
 , ini = require('ini')
 , fs = require('fs')
 , apis = require('./apis')
-, parseSettings = require('./parse_settings');
+, parseSettings = require('./parse_settings')
+, data = require('./data');
 
 var settings = parseSettings.parse("./defaults.ini", "./minidb.ini");
 
@@ -35,7 +36,13 @@ minidb.post('/v2/commands', apis.v2.commands);
 minidb.get ('/v2/nodes/:certname/facts', apis.v2.facts);
 minidb.get ('/v2/resources', apis.v2.resources);
 
+//Housekeeping
+data.ensureDirectoriesExist(settings);
+
 //Start server
-https.createServer(parseSettings.httpsOptions(settings), minidb).listen(minidb.get('port'), function(){
-    console.log("Express server listening on port " + minidb.get('port'));
-});
+https.createServer(
+    parseSettings.httpsOptions(settings),
+    minidb).listen(minidb.get('port'),
+                   function(){
+                       console.log("Express server listening on port " + minidb.get('port'));
+                   });

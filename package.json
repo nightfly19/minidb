@@ -1,9 +1,9 @@
 {
-  "name": "application-name",
+  "name": "minidb",
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "node app"
+    "start": "node minidb"
   },
   "dependencies": {
     "express": "3.1.0",
