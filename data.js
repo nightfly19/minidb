@@ -61,11 +61,10 @@ var replaceRecord = function(record_basedir, certname, longterm_name, data){
 };
 
 exports.replaceFacts = function(settings, facts){
-    console.log(facts.name);
     replaceRecord(settings.fact_dir, facts.name, facts.timestamp, JSON.stringify(facts));
 };
 
 exports.replaceCatalog = function(settings, catalog){
     var name = catalog.data.name;
-    console.log(name);
+    replaceRecord(settings.catalog_dir, name, String(catalog.version), JSON.stringify(catalog))
 };
