@@ -36,8 +36,9 @@ exports.facts = function(settings, certname, callback){
               function(exists){
                   if (exists){
                       fs.readFile(current_name, function(err, data){
-                          console.log(data);
-                          callback(JSON.parse(data));})}
+                          var parsed = JSON.parse(data);
+                          console.log(parsed);
+                          callback(parsed);})}
                   else{callback({});}});
     return {};};
 
@@ -66,5 +67,6 @@ exports.replaceFacts = function(settings, facts){
 
 exports.replaceCatalog = function(settings, catalog){
     var name = catalog.data.name;
-    replaceRecord(settings.catalog_dir, name, String(catalog.version), JSON.stringify(catalog))
+    console.log(catalog.data.version);
+    replaceRecord(settings.catalog_dir, name, String(catalog.data.version), JSON.stringify(catalog))
 };

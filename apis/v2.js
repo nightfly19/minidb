@@ -19,6 +19,7 @@ exports.facts = function(req, res){
     var certname = req.params.certname;
     var settings = req.app.get('settings');
     console.log('facts');
+    console.log(certname);
     data.facts(settings, certname, function(facts){
         res.json(facts)})};
 
