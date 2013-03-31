@@ -41,24 +41,28 @@ exports.facts = function(settings, certname, callback){
                   else{callback({});}});
     return {};};
 
-exports.replaceFacts = function(settings, facts){
-    var name = facts.name;
-    var node_fact_dir = path.resolve(settings.fact_dir, "all", name);
-    var perm_name = path.resolve(node_fact_dir, facts.timestamp);
-    var temp_name = path.resolve(settings.fact_dir, ".temp", name);
-    var current_name = path.resolve(settings.fact_dir, "current", name);
+var replaceRecord = function(record_basedir, certname, longterm_name, data){
+    var node_record_dir = path.resolve(record_basedir, "all", certname);
+    var perm_name = path.resolve(node_record_dir, longterm_name);
+    var temp_name = path.resolve(record_basedir, ".temp", certname);
+    var current_name = path.resolve(record_basedir, "current", certname);
     var atomic_rename_cb = function(err){if(err){ throw err;}};
     var temp_symlink_cb = function(){
         fs.rename(temp_name, current_name, atomic_rename_cb);
     };
-    var facts_written_cb =  function(err){
+    var record_written_cb =  function(err){
         if(err){throw err;}
         fs.symlink( perm_name, temp_name, temp_symlink_cb)
     };
     var directory_exists_cb = function(){
-        fs.writeFile(perm_name, JSON.stringify(facts), facts_written_cb);
+        fs.writeFile(perm_name, data, record_written_cb);
     };
-    ensureDirectory(node_fact_dir, directory_exists_cb);
+    ensureDirectory(node_record_dir, directory_exists_cb);
+};
+
+exports.replaceFacts = function(settings, facts){
+    console.log(facts.name);
+    replaceRecord(settings.fact_dir, facts.name, facts.timestamp, JSON.stringify(facts));
 };
 
 exports.replaceCatalog = function(settings, catalog){
