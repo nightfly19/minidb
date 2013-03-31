@@ -47,24 +47,19 @@ exports.replaceFacts = function(settings, facts){
     var perm_name = path.resolve(node_fact_dir, facts.timestamp);
     var temp_name = path.resolve(settings.fact_dir, ".temp", name);
     var current_name = path.resolve(settings.fact_dir, "current", name);
-    ensureDirectory(
-        node_fact_dir,
-        function(){
-            fs.writeFile(
-                perm_name,
-                JSON.stringify(facts),
-                function(err){
-                    fs.symlink(
-                        perm_name,
-                        temp_name,
-                        function(){
-                            fs.rename(
-                                temp_name,
-                                current_name,
-                                function(err){
-                                    console.log("Yay!");})
-
-                        })})});};
+    var atomic_rename_cb = function(err){if(err){ throw err;}};
+    var temp_symlink_cb = function(){
+        fs.rename(temp_name, current_name, atomic_rename_cb);
+    };
+    var facts_written_cb =  function(err){
+        if(err){throw err;}
+        fs.symlink( perm_name, temp_name, temp_symlink_cb)
+    };
+    var directory_exists_cb = function(){
+        fs.writeFile(perm_name, JSON.stringify(facts), facts_written_cb);
+    };
+    ensureDirectory(node_fact_dir, directory_exists_cb);
+};
 
 exports.replaceCatalog = function(settings, catalog){
     var name = catalog.data.name;
