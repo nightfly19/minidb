@@ -1,57 +1,34 @@
-var fs = require("fs");
-
-var factPath = function(req, certname){
-    return req.app.get('fact_dir')+"/"+certname;
-};
-
-var catalogPath = function(req, certname){
-    return req.app.get('catalog_dir')+"/"+certname;
-};
+var fs = require("fs")
+,path = require('path')
+,data = require('../data');
 
 var commands = {
     "replace facts": function(req, res, message){
-        var inner_payload = JSON.parse(message.payload);
-        var name = inner_payload.name;
-        var fact_filename = factPath(req,name);
-        fs.writeFile(fact_filename,
-                     JSON.stringify(inner_payload),
-                     function(err){});
+        var settings = req.app.get('settings');
+        var facts = JSON.parse(message.payload);
+        data.replaceFacts(settings, facts);
         res.json({uuid: 0});},
     "replace catalog": function(req, res, message){
-        var inner_payload = message.payload;
-        var name = inner_payload.data.name;
-        var catalog_filename = catalogPath(req,name);
-        fs.writeFile(catalog_filename,
-                     JSON.stringify(inner_payload.data),
-                     function(err){});
+        var settings = req.app.get('settings');
+        var catalog = message.payload;
+        data.replaceCatalog(settings, catalog);
         res.json({uuid: 0});
     }};
 
 exports.facts = function(req, res){
-    var filename = factPath(req, req.params.certname);
-    fs.exists(filename,function(exists){
-        if (exists){
-            fs.readFile(filename, function(err, data){
-                console.log(data);
-                res.json(JSON.parse(data));});
-        }
-        else{
-            res.json({});
-        }});
-    res.send('{}');
-};
+    var certname = req.params.certname;
+    var settings = req.app.get('settings');
+    data.facts(settings, certname, function(facts){
+        res.json(facts)})};
 
 exports.commands = function(req, res){
     var message = JSON.parse(req.body.payload);
     var command = message.command;
     console.log(command);
     if (commands[command]){
-        commands[command](req, res, message);
-    }
+        commands[command](req, res, message);}
     else{
-        res.send("no");
-    }
-};
+        res.send("no");}};
 
 //var query_branches = {
 //    "and"
@@ -110,7 +87,7 @@ var query_builder = function(query){
 
 exports.resources = function (req, res){
     var query = JSON.parse(req.query.query);
-    var catalog_dir = req.app.get('catalog_dir');
+    var catalog_dir = req.app.get('settings').catalog_dir;
     var found_resources = [];
     var filter_fn = query_builder(query);
     fs.readdir(catalog_dir,function(err, files){
