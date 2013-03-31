@@ -18,6 +18,7 @@ var commands = {
 exports.facts = function(req, res){
     var certname = req.params.certname;
     var settings = req.app.get('settings');
+    console.log('facts');
     data.facts(settings, certname, function(facts){
         res.json(facts)})};
 
@@ -30,9 +31,6 @@ exports.commands = function(req, res){
     else{
         res.send("no");}};
 
-//var query_branches = {
-//    "and"
-
 var query_builder = function(query){
     var queryc = query.slice(0);
     var first = queryc[0];
@@ -44,7 +42,6 @@ var query_builder = function(query){
             queryc[0] = 'and';
             var temp_fn_b = query_builder(queryc);
             return function(resource, certname){
-                //console.log("AND");
                 return temp_fn_a(resource, certname) && temp_fn_b(resource, certname);};
         }
         else{
@@ -87,13 +84,13 @@ var query_builder = function(query){
 
 exports.resources = function (req, res){
     var query = JSON.parse(req.query.query);
-    var catalog_dir = req.app.get('settings').catalog_dir;
+    var catalog_dir = path.resolve(req.app.get('settings').catalog_dir,"current");
     var found_resources = [];
     var filter_fn = query_builder(query);
     fs.readdir(catalog_dir,function(err, files){
         for(file in files){
             var certname = files[file];
-            var catalog_path = catalog_dir+"/"+certname;
+            var catalog_path = path.resolve(catalog_dir,certname);
             var resources = JSON.parse(fs.readFileSync(catalog_path)).resources;
             for(i in resources){
                 var resource = resources[i];
