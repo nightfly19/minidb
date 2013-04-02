@@ -1,8 +1,11 @@
-var fs = require('fs');
-var path = require('path');
-var ensureDirectory
+var fs = require('fs')
+,path = require('path')
+,multimethod = require('multimethod')
+,ensureDirectory
 ,ensureDirectorySync
-,ensureDataDir;
+,ensureDataDir
+,replaceFacts
+,replaceCatalg;
 
 exports.ensureDirectory = ensureDirectory = function(path, callback){
     fs.exists(path,function(exists){
@@ -61,12 +64,13 @@ var replaceRecord = function(record_basedir, certname, longterm_name, data){
     ensureDirectory(node_record_dir, directory_exists_cb);
 };
 
-exports.replaceFacts = function(settings, facts){
+exports.replaceFacts = replaceFacts = function(settings, facts){
     replaceRecord(settings.fact_dir, facts.name, facts.timestamp, JSON.stringify(facts));
 };
 
-exports.replaceCatalog = function(settings, catalog){
+exports.replaceCatalog = replaceCatalog = function(settings, catalog){
     var name = catalog.data.name;
     console.log(catalog.data.version);
     replaceRecord(settings.catalog_dir, name, String(catalog.data.version), JSON.stringify(catalog))
 };
+

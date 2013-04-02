@@ -1,20 +1,24 @@
-var fs = require("fs")
+var data = require('../data')
+,fs = require("fs")
 ,path = require('path')
-,data = require('../data')
+,multimethod = require('multimethod')
 ,queryCompiler = require('../query_compiler');
 
-var commands = {
-    "replace facts": function(req, res, message){
-        var settings = req.app.get('settings');
+var commandDispatcher = multimethod()
+    .dispatch(function(command, message, settings, res){
+        return command;
+    }).when('replace facts', function(command, message, settings, res){
         var facts = JSON.parse(message.payload);
         data.replaceFacts(settings, facts);
-        res.json({uuid: 0});},
-    "replace catalog": function(req, res, message){
-        var settings = req.app.get('settings');
+        res.json({uuid: 0});
+    }).when('replace catalog', function(command, message, settings, res){
         var catalog = message.payload;
         data.replaceCatalog(settings, catalog);
         res.json({uuid: 0});
-    }};
+    }).default(function(command, message, settings, res){
+        console.log('unknown command: '+command);
+        res.send('wtf');
+    });
 
 exports.facts = function(req, res){
     var certname = req.params.certname;
@@ -27,11 +31,10 @@ exports.facts = function(req, res){
 exports.commands = function(req, res){
     var message = JSON.parse(req.body.payload);
     var command = message.command;
+    var settings = req.app.get('settings');
     console.log(command);
-    if (commands[command]){
-        commands[command](req, res, message);}
-    else{
-        res.send("no");}};
+    commandDispatcher(command, message,  settings, res);
+};
 
 exports.resources = function (req, res){
     var query = JSON.parse(req.query.query);
