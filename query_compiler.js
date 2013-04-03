@@ -40,7 +40,7 @@ compiler = multimethod().dispatch(function(symbol, args){return symbol;})
         }
     })
     .when('=', (function(){
-        var eqlDispatch = multimethod().dispatch(function(field, value){return value;})
+        var eqlDispatch = multimethod().dispatch(function(field, value){return field;})
             .when('certname', function(field, value){
                 return function(resource, certname){return value == certname;};
             })

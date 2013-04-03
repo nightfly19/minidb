@@ -45,7 +45,7 @@ exports.resources = function (req, res){
         for(file in files){
             var certname = files[file];
             var catalog_path = path.resolve(catalog_dir,certname);
-            var resources = JSON.parse(fs.readFileSync(catalog_path)).resources;
+            var resources = JSON.parse(fs.readFileSync(catalog_path)).data.resources;
             for(i in resources){
                 var resource = resources[i];
                 if(filter_fn(resource, certname)){
