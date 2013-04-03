@@ -2,11 +2,11 @@ var multimethod = require('multimethod');
 
 var compiler, compile;
 
-var isForm = function(form){Array.isArray(form)};
+var isForm = function(form){ return Array.isArray(form)};
 
 var formExpand = function(form, callback){
-    var car = query.slice(0);
-    var cdr = queryc[0];
+    var cdr = form.slice(0);
+    var car = form[0];
     cdr.shift();
     return callback(car, cdr);
 };
